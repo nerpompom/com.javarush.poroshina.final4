@@ -1,9 +1,8 @@
-package com.javarush.dao;
+package com.javarush.poroshina.final4.dao;
 
-import com.javarush.domain.City;
+import com.javarush.poroshina.final4.domain.City;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-
 import java.util.List;
 
 public class CityDAO {

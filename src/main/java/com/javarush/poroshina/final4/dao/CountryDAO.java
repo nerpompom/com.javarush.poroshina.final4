@@ -1,9 +1,8 @@
-package com.javarush.dao;
+package com.javarush.poroshina.final4.dao;
 
-import com.javarush.domain.Country;
+import com.javarush.poroshina.final4.domain.Country;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-
 import java.util.List;
 
 public class CountryDAO {

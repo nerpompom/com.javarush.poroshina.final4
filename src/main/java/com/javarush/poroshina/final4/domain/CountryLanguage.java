@@ -1,8 +1,7 @@
-package com.javarush.domain;
+package com.javarush.poroshina.final4.domain;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
-
 import java.math.BigDecimal;
 
 @Entity
@@ -33,35 +32,15 @@ public class CountryLanguage {
         this.id = id;
     }
 
-    public Country getCountry() {
-        return country;
-    }
-
-    public void setCountry(Country country) {
-        this.country = country;
-    }
-
     public String getLanguage() {
         return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
     }
 
     public Boolean getOfficial() {
         return isOfficial;
     }
 
-    public void setOfficial(Boolean official) {
-        isOfficial = official;
-    }
-
     public BigDecimal getPercentage() {
         return percentage;
-    }
-
-    public void setPercentage(BigDecimal percentage) {
-        this.percentage = percentage;
     }
 }

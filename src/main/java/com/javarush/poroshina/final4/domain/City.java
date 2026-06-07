@@ -1,4 +1,4 @@
-package com.javarush.domain;
+package com.javarush.poroshina.final4.domain;
 
 import jakarta.persistence.*;
 
@@ -31,31 +31,15 @@ public class City {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Country getCountry() {
         return country;
-    }
-
-    public void setCountry(Country country) {
-        this.country = country;
     }
 
     public String getDistrict() {
         return district;
     }
 
-    public void setDistrict(String district) {
-        this.district = district;
-    }
-
     public Integer getPopulation() {
         return population;
-    }
-
-    public void setPopulation(Integer population) {
-        this.population = population;
     }
 }

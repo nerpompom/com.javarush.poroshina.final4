@@ -1,4 +1,4 @@
-package com.javarush.domain;
+package com.javarush.poroshina.final4.domain;
 
 public enum Continent {
     ASIA,

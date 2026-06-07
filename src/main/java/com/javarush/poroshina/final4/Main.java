@@ -1,14 +1,14 @@
-package com.javarush;
+package com.javarush.poroshina.final4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.javarush.dao.CityDAO;
-import com.javarush.dao.CountryDAO;
-import com.javarush.domain.City;
-import com.javarush.domain.Country;
-import com.javarush.domain.CountryLanguage;
-import com.javarush.redis.CityCountry;
-import com.javarush.redis.Language;
+import com.javarush.poroshina.final4.dao.CityDAO;
+import com.javarush.poroshina.final4.dao.CountryDAO;
+import com.javarush.poroshina.final4.domain.City;
+import com.javarush.poroshina.final4.domain.Country;
+import com.javarush.poroshina.final4.domain.CountryLanguage;
+import com.javarush.poroshina.final4.redis.CityCountry;
+import com.javarush.poroshina.final4.redis.Language;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -17,18 +17,14 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static java.util.Objects.nonNull;
 
 public class Main {
     private final SessionFactory sessionFactory;
     private final RedisClient redisClient;
-
     private final ObjectMapper mapper;
-
     private final CityDAO cityDAO;
     private final CountryDAO countryDAO;
 
@@ -36,9 +32,31 @@ public class Main {
         sessionFactory = prepareRelationalDb();
         cityDAO = new CityDAO(sessionFactory);
         countryDAO = new CountryDAO(sessionFactory);
-
         redisClient = prepareRedisClient();
         mapper = new ObjectMapper();
+    }
+
+    public static void main(String[] args) {
+        Main main = new Main();
+        List<City> allCities = main.fetchData(main);
+        List<CityCountry> preparedData = main.transformData(allCities);
+        main.pushToRedis(preparedData);
+
+        main.sessionFactory.getCurrentSession().close();
+        List<Integer> ids = Arrays.asList(3, 2545, 123, 4, 189, 89, 3458, 1189, 10, 102);
+
+        long startRedis = System.currentTimeMillis();
+        main.testRedisData(ids);
+        long stopRedis = System.currentTimeMillis();
+
+        long startMysql = System.currentTimeMillis();
+        main.testMysqlData(ids);
+        long stopMysql = System.currentTimeMillis();
+
+        System.out.printf("%s:\t%d ms\n", "Redis", (stopRedis - startRedis));
+        System.out.printf("%s:\t%d ms\n", "MySQL", (stopMysql - startMysql));
+
+        main.shutdown();
     }
 
     private RedisClient prepareRedisClient() {
@@ -118,39 +136,6 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
-//        Main main = new Main();
-//        List<City> allCities = main.fetchData(main);
-//        List<CityCountry> preparedData = main.transformData(allCities);
-//        main.pushToRedis(preparedData);
-//        main.shutdown();
-        Main main = new Main();
-        List<City> allCities = main.fetchData(main);
-        List<CityCountry> preparedData = main.transformData(allCities);
-        main.pushToRedis(preparedData);
-
-        //закроем текущую сессию, чтоб точно делать запрос к БД, а не вытянуть данные из кэша
-        main.sessionFactory.getCurrentSession().close();
-
-        //выбираем случайных 10 id городов
-        //так как мы не делали обработку невалидных ситуаций, используй существующие в БД id
-//        List<Integer> ids = List.of(3, 2545, 123, 4, 189, 89, 3458, 1189, 10, 102);
-        List<Integer> ids = Arrays.asList(3, 2545, 123, 4, 189, 89, 3458, 1189, 10, 102);
-
-        long startRedis = System.currentTimeMillis();
-        main.testRedisData(ids);
-        long stopRedis = System.currentTimeMillis();
-
-        long startMysql = System.currentTimeMillis();
-        main.testMysqlData(ids);
-        long stopMysql = System.currentTimeMillis();
-
-        System.out.printf("%s:\t%d ms\n", "Redis", (stopRedis - startRedis));
-        System.out.printf("%s:\t%d ms\n", "MySQL", (stopMysql - startMysql));
-
-        main.shutdown();
-    }
-
     private SessionFactory prepareRelationalDb() {
         final SessionFactory sessionFactory;
         Properties properties = new Properties();
@@ -176,9 +161,9 @@ public class Main {
         if (nonNull(sessionFactory)) {
             sessionFactory.close();
         }
-//        if (nonNull(redisClient)) {
-//            redisClient.shutdown();
-//        }
+        if (nonNull(redisClient)) {
+            redisClient.shutdown();
+        }
     }
 
     private List<City> fetchData(Main main) {
